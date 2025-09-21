@@ -5,24 +5,26 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   let email: string, password: string;
 
-  try {
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    email = body.email;
-    password = body.password;
-  } catch {
-    return res.status(400).json({ error: "Invalid request body" });
-  }
+  return res.json;
 
-  const auth = getAuth(app);
+  //   try {
+  //     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+  //     email = body.email;
+  //     password = body.password;
+  //   } catch {
+  //     return res.status(400).json({ error: "Invalid request body" });
+  //   }
 
-  try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    return res.json({ user: userCredential.user });
-  } catch (error: any) {
-    return res.status(401).json({ error: error.message });
-  }
+  //   const auth = getAuth(app);
+
+  //   try {
+  //     const userCredential = await signInWithEmailAndPassword(
+  //       auth,
+  //       email,
+  //       password
+  //     );
+  //     return res.json({ user: userCredential.user });
+  //   } catch (error: any) {
+  //     return res.status(401).json({ error: error.message });
+  //   }
 }
