@@ -3,7 +3,15 @@ import app from "../firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { email, password } = req.body as { email: string; password: string };
+  let email: string, password: string;
+
+  try {
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    email = body.email;
+    password = body.password;
+  } catch {
+    return res.status(400).json({ error: "Invalid request body" });
+  }
 
   const auth = getAuth(app);
 
