@@ -2,7 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export default function withCors(handler: Function) {
   return async (req: VercelRequest, res: VercelResponse) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    const origin = req.headers.origin || "*";
+    res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     res.setHeader(
