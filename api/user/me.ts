@@ -1,4 +1,3 @@
-// api/user/me.ts
 import type { VercelResponse } from "@vercel/node";
 import withAuth, { AuthenticatedRequest } from "../../middleware/withAuth";
 import withCors from "../../middleware/cors";
