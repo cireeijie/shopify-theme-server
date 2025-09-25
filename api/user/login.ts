@@ -37,7 +37,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       "Set-Cookie",
       serialize("session", sessionCookie, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: true,
         sameSite: "none",
         maxAge: expiresIn / 1000,
         path: "/",
@@ -72,12 +72,10 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
   } catch (error: any) {
-    return res
-      .status(401)
-      .json({
-        errorMessage: error.message,
-        error: "Invalid email or password",
-      });
+    return res.status(401).json({
+      errorMessage: error.message,
+      error: "Invalid email or password",
+    });
   }
 }
 
