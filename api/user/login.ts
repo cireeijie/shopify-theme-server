@@ -37,7 +37,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       "Set-Cookie",
       serialize("session", sessionCookie, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "none",
         maxAge: expiresIn / 1000,
         path: "/",
