@@ -72,7 +72,12 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
   } catch (error: any) {
-    return res.status(401).json({ error: error.message });
+    return res
+      .status(401)
+      .json({
+        errorMessage: error.message,
+        error: "Invalid email or password",
+      });
   }
 }
 
