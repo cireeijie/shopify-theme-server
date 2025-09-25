@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import admin from "../../firebase/admin";
+import withCors from "../../middleware/cors";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed. Use POST." });
   }
@@ -15,7 +16,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // 1. Check if email already exists
     const existingUser = await admin
       .auth()
       .getUserByEmail(email)
@@ -24,14 +24,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "Email is already in use." });
     }
 
-    // 2. Create Firebase Auth user
     const userRecord = await admin.auth().createUser({
       email,
       password,
       displayName: `${firstName} ${lastName}`,
     });
 
-    // 3. Create Firestore record
     const db = admin.firestore();
     await db.collection("Users").doc(userRecord.uid).set({
       email,
@@ -51,3 +49,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: error.message });
   }
 }
+
+export default withCors(handler);

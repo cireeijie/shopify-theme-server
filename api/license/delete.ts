@@ -1,10 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getFirestore } from "firebase-admin/firestore";
 import { verifyAdmin } from "../../utils/checkAdmin";
+import withCors from "../../middleware/cors";
 
 const db = getFirestore();
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "DELETE") {
     return res.status(405).json({ error: "Method Not Allowed. Use DELETE." });
   }
@@ -46,3 +47,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
   }
 }
+
+export default withCors(handler);

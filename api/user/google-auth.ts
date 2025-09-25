@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import admin from "../../firebase/admin";
+import withCors from "../../middleware/cors";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed. Use POST." });
   }
@@ -13,23 +14,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // 1. Verify the Google token
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const { uid, email, name } = decodedToken;
 
-    // 2. Check if the user exists in Firebase Auth
     let userRecord;
     try {
       userRecord = await admin.auth().getUser(uid);
     } catch (error) {
-      // If no user, create one
       userRecord = await admin.auth().createUser({
         uid,
         email,
         displayName: name || "Google User",
       });
 
-      // 3. Create Firestore record
       const db = admin.firestore();
       await db
         .collection("User")
@@ -52,3 +49,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: error.message });
   }
 }
+
+export default withCors(handler);

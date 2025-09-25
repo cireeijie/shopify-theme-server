@@ -1,11 +1,11 @@
-// api/user/login.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import app from "../../firebase/app";
 import admin from "../../firebase/admin";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { serialize } from "cookie"; // ✅ FIXED import
+import { serialize } from "cookie";
+import withCors from "../../middleware/cors";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed. Use POST." });
   }
@@ -28,13 +28,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const idToken = await userCredential.user.getIdToken();
 
-    // Create a session cookie
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
+    const expiresIn = 60 * 60 * 24 * 5 * 1000;
     const sessionCookie = await admin
       .auth()
       .createSessionCookie(idToken, { expiresIn });
 
-    // Set session cookie in response
     res.setHeader(
       "Set-Cookie",
       serialize("session", sessionCookie, {
@@ -58,3 +56,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: error.message });
   }
 }
+
+export default withCors(handler);

@@ -2,16 +2,16 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getFirestore } from "firebase-admin/firestore";
 import admin from "../../firebase/admin";
 import { parse } from "cookie";
+import withCors from "../../middleware/cors";
 
 const db = getFirestore();
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed. Use POST." });
   }
 
   try {
-    // Parse cookies
     const cookies = parse(req.headers.cookie || "");
     const sessionCookie = cookies.session;
 
@@ -19,7 +19,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: "Unauthorized. No session found." });
     }
 
-    // Verify session cookie
     const decodedClaims = await admin
       .auth()
       .verifySessionCookie(sessionCookie, true);
@@ -34,10 +33,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .json({ error: "Valid Shopify store link is required." });
     }
 
-    // Generate unique license key
     let licenseKey = await generateUniqueLicenseKey();
 
-    // Save to Firestore
     const newLicenseRef = await db.collection("Licenses").add({
       storeLink,
       licenseKey,
@@ -62,7 +59,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// Helper to generate unique license key
 async function generateUniqueLicenseKey(): Promise<string> {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const db = getFirestore();
@@ -91,3 +87,5 @@ async function generateUniqueLicenseKey(): Promise<string> {
 
   return key;
 }
+
+export default withCors(handler);
